@@ -51,13 +51,39 @@ public class Controller : MonoBehaviour
         //Matriz de adyacencia
         int[,] matriu = new int[Constants.NumTiles, Constants.NumTiles];
 
-        //TODO: Inicializar matriz a 0's
+        //Inicializar matriz a 0's
+        for (int i = 0; i < Constants.NumTiles; i++)
+        {
+            for (int j = 0; j < Constants.NumTiles; j++)
+            {
+                matriu[i, j] = 0;
+            }
+        }
 
-        //TODO: Para cada posición, rellenar con 1's las casillas adyacentes (arriba, abajo, izquierda y derecha)
+        //Para cada posición, rellenar con 1's las casillas adyacentes (arriba, abajo, izquierda y derecha)
+        for (int i = 0; i < Constants.NumTiles; i++)
+        {
+            if (i - Constants.TilesPerRow >= 0) matriu[i, i - Constants.TilesPerRow] = 1; // Arriba
+            if (i + Constants.TilesPerRow < Constants.NumTiles) matriu[i, i + Constants.TilesPerRow] = 1; // Abajo
+            if (i % Constants.TilesPerRow != 0) matriu[i, i - 1] = 1; // Izquierda
+            if (i % Constants.TilesPerRow != Constants.TilesPerRow - 1) matriu[i, i + 1] = 1; // Derecha
+        }
 
-        //TODO: Rellenar la lista "adjacency" de cada casilla con los índices de sus casillas adyacentes
-
+        //Rellenar la lista "adjacency" de cada casilla con los índices de sus casillas adyacentes
+        for (int i = 0; i < Constants.NumTiles; i++)
+        {
+            for (int j = 0; j < Constants.NumTiles; j++)
+            {
+                if (matriu[i, j] == 1)
+                {
+                    tiles[i].adjacency.Add(j); // Aquí está la corrección
+                }
+            }
+        }
     }
+
+
+
 
     //Reseteamos cada casilla: color, padre, distancia y visitada
     public void ResetTiles()
@@ -140,13 +166,26 @@ public class Controller : MonoBehaviour
         tiles[clickedTile].current = true;
         FindSelectableTiles(false);
 
-        /*TODO: Cambia el código de abajo para hacer lo siguiente
-        - Elegimos una casilla aleatoria entre las seleccionables que puede ir el caco
-        - Movemos al caco a esa casilla
-        - Actualizamos la variable currentTile del caco a la nueva casilla
-        */
-        robber.GetComponent<RobberMove>().MoveToTile(tiles[robber.GetComponent<RobberMove>().currentTile]);
+        // Elegimos una casilla aleatoria entre las seleccionables que puede ir el caco
+        List<int> selectableTiles = new List<int>();
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            if (tiles[i].selectable)
+            {
+                selectableTiles.Add(i);
+            }
+        }
+        int randomTileIndex = selectableTiles[Random.Range(0, selectableTiles.Count)];
+
+        // Movemos al caco a esa casilla
+        robber.GetComponent<RobberMove>().MoveToTile(tiles[randomTileIndex]); // Aquí está la corrección
+
+        // Actualizamos la variable currentTile del caco a la nueva casilla
+        robber.GetComponent<RobberMove>().currentTile = randomTileIndex;
     }
+
+
+
 
     public void EndGame(bool end)
     {
@@ -188,10 +227,9 @@ public class Controller : MonoBehaviour
 
     public void FindSelectableTiles(bool cop)
     {
-                 
-        int indexcurrentTile;        
+        int indexcurrentTile;
 
-        if (cop==true)
+        if (cop == true)
             indexcurrentTile = cops[clickedCop].GetComponent<CopMove>().currentTile;
         else
             indexcurrentTile = robber.GetComponent<RobberMove>().currentTile;
@@ -200,24 +238,24 @@ public class Controller : MonoBehaviour
         tiles[indexcurrentTile].current = true;
 
         //Cola para el BFS
-        Queue<Tile> nodes = new Queue<Tile>();
+        Queue<int> nodes = new Queue<int>(); // Cambiado a Queue<int>
 
-        //TODO: Implementar BFS. Los nodos seleccionables los ponemos como selectable=true
-        //Tendrás que cambiar este código por el BFS
-        for(int i = 0; i < Constants.NumTiles; i++)
+        //Implementar BFS. Los nodos seleccionables los ponemos como selectable=true
+        nodes.Enqueue(indexcurrentTile);
+        while (nodes.Count > 0)
         {
-            tiles[i].selectable = true;
+            int currentIndex = nodes.Dequeue();
+            foreach (int tileIndex in tiles[currentIndex].adjacency)
+            {
+                if (!tiles[tileIndex].visited)
+                {
+                    tiles[tileIndex].parent = tiles[currentIndex];
+                    tiles[tileIndex].visited = true;
+                    tiles[tileIndex].selectable = true;
+                    nodes.Enqueue(tileIndex); // Aquí está la corrección
+                }
+            }
         }
-
-
     }
-    
-   
-    
 
-    
-
-   
-
-       
 }

@@ -64,9 +64,13 @@ public class Controller : MonoBehaviour
         for (int i = 0; i < Constants.NumTiles; i++)
         {
             if (i - Constants.TilesPerRow >= 0) matriu[i, i - Constants.TilesPerRow] = 1; // Arriba
+            if (i - 2 * Constants.TilesPerRow >= 0) matriu[i, i - 2 * Constants.TilesPerRow] = 1; // Arriba 2
             if (i + Constants.TilesPerRow < Constants.NumTiles) matriu[i, i + Constants.TilesPerRow] = 1; // Abajo
+            if (i + 2 * Constants.TilesPerRow < Constants.NumTiles) matriu[i, i + 2 * Constants.TilesPerRow] = 1; // Abajo 2
             if (i % Constants.TilesPerRow != 0) matriu[i, i - 1] = 1; // Izquierda
+            if (i % Constants.TilesPerRow > 1) matriu[i, i - 2] = 1; // Izquierda 2
             if (i % Constants.TilesPerRow != Constants.TilesPerRow - 1) matriu[i, i + 1] = 1; // Derecha
+            if (i % Constants.TilesPerRow < Constants.TilesPerRow - 2) matriu[i, i + 2] = 1; // Derecha 2
 
             // Diagonales
             if (i - Constants.TilesPerRow >= 0 && i % Constants.TilesPerRow != 0) matriu[i, i - Constants.TilesPerRow - 1] = 1; // Diagonal superior izquierda

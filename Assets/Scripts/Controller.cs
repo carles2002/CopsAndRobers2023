@@ -3,34 +3,37 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class Controller : MonoBehaviour
 {
     //GameObjects
-    public GameObject board;
-    public GameObject[] cops = new GameObject[2];
-    public GameObject robber;
-    public Text rounds;
-    public Text finalMessage;
-    public Button playAgainButton;
+    public GameObject board; // Tablero del juego
+    public GameObject[] cops = new GameObject[2]; // Array de policías
+    public GameObject robber; // Ladrón
+    public Text rounds; // Texto para mostrar las rondas
+    public Text finalMessage; // Mensaje final (ganar o perder)
+    public Button playAgainButton; // Botón para jugar de nuevo
 
     //Otras variables
-    Tile[] tiles = new Tile[Constants.NumTiles];
-    Dictionary<Tile, List<int>> robberAdjDistances = new Dictionary<Tile, List<int>>();
-    private int roundCount = 0;
-    private int state;
-    private int clickedTile = -1;
-    private int clickedCop = 0;
+    Tile[] tiles = new Tile[Constants.NumTiles]; // Array de casillas
+    Dictionary<Tile, List<int>> robberAdjDistances = new Dictionary<Tile, List<int>>(); // Diccionario para guardar las distancias del ladrón a los policías
+    private int roundCount = 0; // Contador de rondas
+    private int state; // Estado del juego
+    private int clickedTile = -1; // Casilla clicada
+    private int clickedCop = 0; // Policía clicado
 
+    // Método que se ejecuta al inicio del juego
     void Start()
     {
-        InitTiles();
-        InitAdjacencyLists();
-        state = Constants.Init;
+        InitTiles(); // Inicializar las casillas
+        InitAdjacencyLists(); // Inicializar las listas de adyacencia
+        state = Constants.Init; // Estado inicial
     }
 
-    //Rellenamos el array de casillas y posicionamos las fichas
+    // Método para inicializar las casillas y posicionar las fichas
     void InitTiles()
     {
+        // Recorremos todas las filas y columnas del tablero
         for (int fil = 0; fil < Constants.TilesPerRow; fil++)
         {
             GameObject rowchild = board.transform.GetChild(fil).gameObject;
@@ -38,23 +41,23 @@ public class Controller : MonoBehaviour
             for (int col = 0; col < Constants.TilesPerRow; col++)
             {
                 GameObject tilechild = rowchild.transform.GetChild(col).gameObject;
-                tiles[fil * Constants.TilesPerRow + col] = tilechild.GetComponent<Tile>();
+                tiles[fil * Constants.TilesPerRow + col] = tilechild.GetComponent<Tile>(); // Asignamos la casilla correspondiente
             }
         }
 
+        // Posicionamos las fichas en las casillas iniciales
         cops[0].GetComponent<CopMove>().currentTile = Constants.InitialCop0;
         cops[1].GetComponent<CopMove>().currentTile = Constants.InitialCop1;
         robber.GetComponent<RobberMove>().currentTile = Constants.InitialRobber;
     }
 
+    // Método para inicializar las listas de adyacencia
     public void InitAdjacencyLists()
     {
         // Matriz de adyacencia
         int[,] matrix = new int[Constants.NumTiles, Constants.NumTiles];
 
-        
         // Establecer a 1 todas las celdas adyacentes para cada celda individual
-       
         for (int i = 0; i < Constants.NumTiles; ++i)
         {
             // Arriba
@@ -70,9 +73,8 @@ public class Controller : MonoBehaviour
             if (i % 8 != 0) { matrix[i, i - 1] = 1; }
         }
 
-        // Rellenar la lista de adyacencia 
-        for (int i = 0; i < Constants.NumTiles; ++i)
-        {
+        // Rellenar la lista de adyacencia para cada celda con los índices de sus vecinos adyacentes
+        for (int i = 0; i < Constants.NumTiles; ++i )       {
             for (int j = 0; j < Constants.NumTiles; ++j)
             {
                 if (matrix[i, j] == 1)
@@ -83,7 +85,7 @@ public class Controller : MonoBehaviour
         }
     }
 
-    // Reseteamos cada casilla
+    // Método para resetear cada casilla: color, padre, distancia y visitada
     public void ResetTiles()
     {
         foreach (Tile tile in tiles)
@@ -92,6 +94,7 @@ public class Controller : MonoBehaviour
         }
     }
 
+    // Método que se ejecuta al hacer clic en un policía
     public void ClickOnCop(int cop_id)
     {
         switch (state)
@@ -110,6 +113,7 @@ public class Controller : MonoBehaviour
         }
     }
 
+    // Método que se ejecuta al hacer clic en una casilla
     public void ClickOnTile(int t)
     {
         clickedTile = t;
@@ -137,6 +141,7 @@ public class Controller : MonoBehaviour
         }
     }
 
+    // Método para finalizar el turno
     public void FinishTurn()
     {
         switch (state)
@@ -158,6 +163,7 @@ public class Controller : MonoBehaviour
         }
     }
 
+    // Método para el turno del ladrón
     public void RobberTurn()
     {
         RobberMove robberMove = robber.GetComponent<RobberMove>();
@@ -165,7 +171,7 @@ public class Controller : MonoBehaviour
         tiles[clickedTile].current = true;
         FindSelectableTiles(false);
 
-        // Añadir las casillas seleccionables 
+        // Añadir las casillas seleccionables al diccionario
         robberAdjDistances.Clear();
         foreach (Tile t in tiles)
         {
@@ -175,14 +181,14 @@ public class Controller : MonoBehaviour
             }
         }
 
-        // Calcular la distancia a cada cop
+        // Calcular la distancia a cada policía
         for (int i = 0; i < cops.Count(); ++i)
         {
             clickedCop = i;
             clickedTile = cops[i].GetComponent<CopMove>().currentTile;
             tiles[clickedTile].current = true;
 
-            // Actualizar después de cada cop 
+            // Actualizar después de cada policía
             ResetTiles();
             FindSelectableTiles(true);
         }
@@ -221,6 +227,7 @@ public class Controller : MonoBehaviour
         robberMove.MoveToTile(destinyTile);
     }
 
+    // Método para terminar el juego
     public void EndGame(bool endCode)
     {
         finalMessage.text = endCode ? "¡Ganaste!" : "¡Perdiste!";
@@ -228,6 +235,7 @@ public class Controller : MonoBehaviour
         state = Constants.End;
     }
 
+    // Método para jugar de nuevo
     public void PlayAgain()
     {
         cops[0].GetComponent<CopMove>().Restart(tiles[Constants.InitialCop0]);
@@ -244,14 +252,17 @@ public class Controller : MonoBehaviour
         state = Constants.Restarting;
     }
 
+    // Método para iniciar el juego
     public void InitGame() => state = Constants.Init;
 
+    // Método para incrementar el contador de rondas
     public void IncreaseRoundCount()
     {
         roundCount++;
         rounds.text = "Rondas: " + roundCount;
     }
 
+    // Método para encontrar las casillas seleccionables
     public void FindSelectableTiles(bool isCop)
     {
         int currentTileIndex = GetCurrentTileIndex(isCop);
@@ -283,6 +294,7 @@ public class Controller : MonoBehaviour
         }
     }
 
+    // Método para obtener el índice de la casilla actual
     private int GetCurrentTileIndex(bool isCop)
     {
         int index = isCop
@@ -292,6 +304,7 @@ public class Controller : MonoBehaviour
         return index;
     }
 
+    // Método para obtener los índices de las casillas con policías
     private List<int> ObtainCopIndex()
     {
         List<int> indices = new List<int>();
@@ -303,6 +316,7 @@ public class Controller : MonoBehaviour
         return indices;
     }
 
+    // Método para desactivar todas las casillas
     private void DisableAllTiles()
     {
         foreach (Tile t in tiles)
@@ -311,16 +325,19 @@ public class Controller : MonoBehaviour
         };
     }
 
+    // Método para realizar una búsqueda en anchura (BFS, por sus siglas en inglés)
     private void BFS(int currIndex, List<int> copIndices)
     {
         Queue<Tile> nodes = new Queue<Tile>();
 
+        // Añadimos a la cola todos los nodos adyacentes a la casilla actual
         foreach (int i in tiles[currIndex].adjacency)
         {
             tiles[i].parent = tiles[currIndex];  // Casilla raíz
             nodes.Enqueue(tiles[i]);
         }
 
+        // Mientras haya nodos en la cola
         while (nodes.Count > 0)
         {
             Tile curr = nodes.Dequeue();
@@ -328,12 +345,14 @@ public class Controller : MonoBehaviour
             {
                 if (copIndices.Contains(curr.numTile))
                 {
-                    //curr.distance = Constants.Distance + 1;
+                    // Si la casilla actual contiene un policía, incrementamos su distancia
                     curr.distance = curr.parent.distance + 1;
                     curr.visited = true;
                 }
+
                 else
                 {
+                    // Si la casilla actual no contiene un policía, añadimos a la cola todos sus nodos adyacentes
                     foreach (int i in curr.adjacency)
                     {
                         if (!tiles[i].visited)
@@ -346,7 +365,6 @@ public class Controller : MonoBehaviour
                     curr.visited = true;
                     curr.distance = curr.parent.distance + 1;
                 }
-
             }
         }
     }

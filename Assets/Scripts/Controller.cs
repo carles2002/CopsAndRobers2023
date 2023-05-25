@@ -168,7 +168,7 @@ public class Controller : MonoBehaviour
 
         // Elegimos una casilla aleatoria entre las seleccionables que puede ir el caco
         List<int> selectableTiles = new List<int>();
-        for (int i = 0; i < tiles.Length; i++)
+        for (int i = 0; i < tiles.Length-1; i++)
         {
             if (tiles[i].selectable)
             {
@@ -178,7 +178,7 @@ public class Controller : MonoBehaviour
         int randomTileIndex = selectableTiles[Random.Range(0, selectableTiles.Count)];
 
         // Movemos al caco a esa casilla
-        robber.GetComponent<RobberMove>().MoveToTile(tiles[randomTileIndex]); // Aquí está la corrección
+        robber.GetComponent<RobberMove>().MoveToTile(tiles[randomTileIndex]); 
 
         // Actualizamos la variable currentTile del caco a la nueva casilla
         robber.GetComponent<RobberMove>().currentTile = randomTileIndex;

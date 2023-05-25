@@ -60,13 +60,19 @@ public class Controller : MonoBehaviour
             }
         }
 
-        //Para cada posición, rellenar con 1's las casillas adyacentes (arriba, abajo, izquierda y derecha)
+        //Para cada posición, rellenar con 1's las casillas adyacentes (arriba, abajo, izquierda, derecha y diagonales)
         for (int i = 0; i < Constants.NumTiles; i++)
         {
             if (i - Constants.TilesPerRow >= 0) matriu[i, i - Constants.TilesPerRow] = 1; // Arriba
             if (i + Constants.TilesPerRow < Constants.NumTiles) matriu[i, i + Constants.TilesPerRow] = 1; // Abajo
             if (i % Constants.TilesPerRow != 0) matriu[i, i - 1] = 1; // Izquierda
             if (i % Constants.TilesPerRow != Constants.TilesPerRow - 1) matriu[i, i + 1] = 1; // Derecha
+
+            // Diagonales
+            if (i - Constants.TilesPerRow >= 0 && i % Constants.TilesPerRow != 0) matriu[i, i - Constants.TilesPerRow - 1] = 1; // Diagonal superior izquierda
+            if (i - Constants.TilesPerRow >= 0 && i % Constants.TilesPerRow != Constants.TilesPerRow - 1) matriu[i, i - Constants.TilesPerRow + 1] = 1; // Diagonal superior derecha
+            if (i + Constants.TilesPerRow < Constants.NumTiles && i % Constants.TilesPerRow != 0) matriu[i, i + Constants.TilesPerRow - 1] = 1; // Diagonal inferior izquierda
+            if (i + Constants.TilesPerRow < Constants.NumTiles && i % Constants.TilesPerRow != Constants.TilesPerRow - 1) matriu[i, i + Constants.TilesPerRow + 1] = 1; // Diagonal inferior derecha
         }
 
         //Rellenar la lista "adjacency" de cada casilla con los índices de sus casillas adyacentes
@@ -81,6 +87,7 @@ public class Controller : MonoBehaviour
             }
         }
     }
+
 
 
 
@@ -115,7 +122,7 @@ public class Controller : MonoBehaviour
     public void ClickOnTile(int t)
     {                     
         clickedTile = t;
-
+        Debug.Log(t.ToString());
         switch (state)
         {
             
@@ -123,12 +130,14 @@ public class Controller : MonoBehaviour
                 Debug.Log("CLOTswithc");
                 //Si es una casilla roja, nos movemos
                 if (tiles[clickedTile].selectable)
-                {                  
+                {
+                    Debug.Log(tiles.ToString());
                     cops[clickedCop].GetComponent<CopMove>().MoveToTile(tiles[clickedTile]);
                     cops[clickedCop].GetComponent<CopMove>().currentTile=tiles[clickedTile].numTile;
                     tiles[clickedTile].current = true;   
                     
                     state = Constants.TileSelected;
+                    Debug.Log("CLOTswithcDESPUES");
                 }                
                 break;
             case Constants.TileSelected:

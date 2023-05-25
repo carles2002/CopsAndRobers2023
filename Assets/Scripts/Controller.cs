@@ -106,7 +106,7 @@ public class Controller : MonoBehaviour
 
                 ResetTiles();
                 FindSelectableTiles(true);
-
+                Debug.Log("FS");
                 state = Constants.CopSelected;                
                 break;            
         }
@@ -117,8 +117,10 @@ public class Controller : MonoBehaviour
         clickedTile = t;
 
         switch (state)
-        {            
+        {
+            
             case Constants.CopSelected:
+                Debug.Log("CLOTswithc");
                 //Si es una casilla roja, nos movemos
                 if (tiles[clickedTile].selectable)
                 {                  
@@ -136,6 +138,7 @@ public class Controller : MonoBehaviour
                 state = Constants.Init;
                 break;
         }
+        Debug.Log("CLOT");
     }
 
     public void FinishTurn()
@@ -165,20 +168,22 @@ public class Controller : MonoBehaviour
         clickedTile = robber.GetComponent<RobberMove>().currentTile;
         tiles[clickedTile].current = true;
         FindSelectableTiles(false);
-
+        Debug.Log("EJEC FIND");
         // Elegimos una casilla aleatoria entre las seleccionables que puede ir el caco
         List<int> selectableTiles = new List<int>();
-        for (int i = 0; i < tiles.Length-1; i++)
+        for (int i = 0; i <= tiles.Length-1; i++)
         {
             if (tiles[i].selectable)
             {
                 selectableTiles.Add(i);
+                Debug.Log("ADD SELECT");
             }
         }
         int randomTileIndex = selectableTiles[Random.Range(0, selectableTiles.Count)];
 
+        Debug.Log("robs");
         // Movemos al caco a esa casilla
-        robber.GetComponent<RobberMove>().MoveToTile(tiles[randomTileIndex]); 
+        robber.GetComponent<RobberMove>().MoveToTile(tiles[3]); 
 
         // Actualizamos la variable currentTile del caco a la nueva casilla
         robber.GetComponent<RobberMove>().currentTile = randomTileIndex;
@@ -256,6 +261,8 @@ public class Controller : MonoBehaviour
                 }
             }
         }
+        Debug.Log("FIND");
     }
+    
 
 }

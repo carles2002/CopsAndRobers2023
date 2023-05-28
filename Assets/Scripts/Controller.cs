@@ -87,7 +87,7 @@ public class Controller : MonoBehaviour
         }
     }
 
-    // Método para resetear cada casilla: color, padre, distancia y visitada
+    // Método para resetear cada casilla
     public void ResetTiles()
     {
         foreach (Tile tile in tiles)
@@ -151,7 +151,9 @@ public class Controller : MonoBehaviour
             case Constants.TileSelected:
                 ResetTiles();
                 state = Constants.RobberTurn;
-                RobberTurn();
+               
+                 RobberTurn();
+                
                 break;
 
             case Constants.RobberTurn:
@@ -228,6 +230,7 @@ public class Controller : MonoBehaviour
         robberMove.currentTile = destinyTile.numTile;
         robberMove.MoveToTile(destinyTile);
     }
+    
 
     // Método para terminar el juego
     public void EndGame(bool endCode)
@@ -382,22 +385,22 @@ public class Controller : MonoBehaviour
             }
         }
     }
+    
     private void DFS(int currIndex, List<int> copIndices)
     {
-        
-        Queue<Tile> nodes = new Queue<Tile>();
+        Stack<Tile> nodes = new Stack<Tile>();
 
-        // Añadimos a la cola todos los nodos adyacentes a la casilla actual
+        // Añadimos a la pila todos los nodos adyacentes a la casilla actual
         foreach (int i in tiles[currIndex].adjacency)
         {
             tiles[i].parent = tiles[currIndex];  // Casilla raíz
-            nodes.Enqueue(tiles[i]);
+            nodes.Push(tiles[i]);
         }
 
-        // Mientras haya nodos en la cola
+        // Mientras haya nodos en la pila
         while (nodes.Count > 0)
         {
-            Tile curr = nodes.Dequeue();
+            Tile curr = nodes.Pop();
             if (!curr.visited)
             {
                 if (copIndices.Contains(curr.numTile))
@@ -409,13 +412,13 @@ public class Controller : MonoBehaviour
 
                 else
                 {
-                    // Si la casilla actual no contiene un policía, añadimos a la cola todos sus nodos adyacentes
+                    // Si la casilla actual no contiene un policía, añadimos a la pila todos sus nodos adyacentes
                     foreach (int i in curr.adjacency)
                     {
                         if (!tiles[i].visited)
                         {
                             tiles[i].parent = curr;
-                            nodes.Enqueue(tiles[i]);
+                            nodes.Push(tiles[i]);
                         }
                     }
 
@@ -425,16 +428,18 @@ public class Controller : MonoBehaviour
             }
         }
     }
+
     public void selectBFS()
     {
-        Debug.Log("BFS SELECTED");
+        Debug.Log("BFS SELECIONADO");
         mode = 0;
     }
     public void selectDFS()
     {
-        Debug.Log("DFS SELECTED");
+        Debug.Log("DFS SELECIONADO");
         mode = 1;
     }
+    
 
 
 }

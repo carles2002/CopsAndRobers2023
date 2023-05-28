@@ -22,6 +22,8 @@ public class Controller : MonoBehaviour
     private int clickedTile = -1; // Casilla clicada
     private int clickedCop = 0; // Policía clicado
 
+    public int mode = 0;
+
     // Método que se ejecuta al inicio del juego
     void Start()
     {
@@ -276,7 +278,18 @@ public class Controller : MonoBehaviour
 
         DisableAllTiles();
 
-        BFS(currentTileIndex, copTileIndices);
+        if (mode== 0) {
+            Debug.Log("BFS");
+            BFS(currentTileIndex, copTileIndices);
+        }
+        else if(mode== 1){
+            Debug.Log("DFS");
+            DFS(currentTileIndex, copTileIndices);
+        }
+        else
+        {
+            Debug.Log("Error en la seleción del Algoritmo");
+        }
 
         // Filtrar por casillas seleccionables (sin policía y alcanzables en 2 movimientos)
         foreach (Tile t in tiles)
@@ -325,9 +338,10 @@ public class Controller : MonoBehaviour
         };
     }
 
-    // Método para realizar una búsqueda en anchura (BFS, por sus siglas en inglés)
+    // Método para realizar una búsqueda en anchura 
     private void BFS(int currIndex, List<int> copIndices)
     {
+        
         Queue<Tile> nodes = new Queue<Tile>();
 
         // Añadimos a la cola todos los nodos adyacentes a la casilla actual
@@ -345,7 +359,7 @@ public class Controller : MonoBehaviour
             {
                 if (copIndices.Contains(curr.numTile))
                 {
-                    // Si la casilla actual contiene un policía, incrementamos su distancia
+                    // Si la casilla actual contiene un cop, incrementamos su distancia
                     curr.distance = curr.parent.distance + 1;
                     curr.visited = true;
                 }
@@ -368,4 +382,59 @@ public class Controller : MonoBehaviour
             }
         }
     }
+    private void DFS(int currIndex, List<int> copIndices)
+    {
+        
+        Queue<Tile> nodes = new Queue<Tile>();
+
+        // Añadimos a la cola todos los nodos adyacentes a la casilla actual
+        foreach (int i in tiles[currIndex].adjacency)
+        {
+            tiles[i].parent = tiles[currIndex];  // Casilla raíz
+            nodes.Enqueue(tiles[i]);
+        }
+
+        // Mientras haya nodos en la cola
+        while (nodes.Count > 0)
+        {
+            Tile curr = nodes.Dequeue();
+            if (!curr.visited)
+            {
+                if (copIndices.Contains(curr.numTile))
+                {
+                    // Si la casilla actual contiene un cop, incrementamos su distancia
+                    curr.distance = curr.parent.distance + 1;
+                    curr.visited = true;
+                }
+
+                else
+                {
+                    // Si la casilla actual no contiene un policía, añadimos a la cola todos sus nodos adyacentes
+                    foreach (int i in curr.adjacency)
+                    {
+                        if (!tiles[i].visited)
+                        {
+                            tiles[i].parent = curr;
+                            nodes.Enqueue(tiles[i]);
+                        }
+                    }
+
+                    curr.visited = true;
+                    curr.distance = curr.parent.distance + 1;
+                }
+            }
+        }
+    }
+    public void selectBFS()
+    {
+        Debug.Log("BFS SELECTED");
+        mode = 0;
+    }
+    public void selectDFS()
+    {
+        Debug.Log("DFS SELECTED");
+        mode = 1;
+    }
+
+
 }
